@@ -1,6 +1,6 @@
 var express = require('express')
 var app = express();
- var Hello = require('./zuaa/douban');
+var Hello = require('./zuaa/douban');
 
 
 
@@ -8,13 +8,13 @@ var CronJob = require('cron').CronJob;
 var fs = require('fs');
 
 var BCS = require('./zuaa/bae-bcs');
-
-  var opt = {
-    host:"bcs.duapp.com",
-    ak:"VNtm6pvG57YyarTyB4mNfAXw",
-    sk:"5kYRQfzrdfBoVhq65a7GKE7VxfUHhqP8"
-  }
-  var client = new BCS(opt);
+var fileDb="timecandy"
+var opt = {
+  host:"bcs.duapp.com",
+  ak:"VNtm6pvG57YyarTyB4mNfAXw",
+  sk:"5kYRQfzrdfBoVhq65a7GKE7VxfUHhqP8"
+}
+var client = new BCS(opt);
 
 
 
@@ -56,7 +56,7 @@ app.get('/uploadtest', function (request, response) {
 
 app.post('/file-upload', function(req, res, next) { 
   var option = {file:  req.files.thumbnail.path}; 
-  client.uploadFile("test1-db", "/"+req.files.thumbnail.name, option, function(err){
+  client.uploadFile(fileDb, "/"+req.files.thumbnail.name, option, function(err){
     if(err){
       console.log('uploadfile faild',err);
     }else{
@@ -65,9 +65,51 @@ app.post('/file-upload', function(req, res, next) {
     res.render('uploadtest.ejs');
   });
 }); 
+app.get('/img/:str', function (request, response) {
+  var filename = request.params.str;
+    
 
+  client.downloadFile(fileDb, "/"+filename, "name.jpg" ,  function(err ){
+    if(err){
+     
+    }else{ 
+        fs.readFile("name.jpg", "binary", function (err, file) { 
+                if (err) { 
+                    response.writeHead(500, { 
+                        'Content-Type': 'text/plain' 
+                    }); 
+                    response.end(err); 
+                } else { 
+                    response.writeHead(200, { 
+                        'Content-Type': 'image/jpeg' 
+                    }); 
+                    response.write(file, "binary"); 
+                    response.end(); 
+                } 
+            }); 
+      
+       
+    } 
+  }); 
+});
 
+app.get('/tFile', function(req, response, next) {    
+   fs.readFile("d043ad4bd11373f05044406aa60f4bfbfaed04cf.jpg", "binary", function (err, file) { 
+                if (err) { 
+                    response.writeHead(500, { 
+                        'Content-Type': 'text/plain' 
+                    }); 
+                    response.end(err); 
+                } else { 
+                    response.writeHead(200, { 
+                        'Content-Type': 'image/jpeg' 
+                    }); 
+                    response.write(file, "binary"); 
+                    response.end(); 
+                } 
+            }); 
 
+}); 
 
 
 app.listen(18080);
